@@ -12,12 +12,23 @@ class Model_Records extends \Model_Crud
                 ->execute()
                 ->get('id');
 
-        \DB::insert(self::$_table_name)->set([
-            'action_id' => $id,
-            'date'      => \DB::expr('CURRENT_TIMESTAMP'),
-            'status'    => 0,
-            'next_at'   => \DB::expr("DATE_ADD(CURRENT_TIMESTAMP, INTERVAL {$data['frequency']} DAY)"),
-        ])->execute();
+        list($insert_id, $rows) = \DB::insert(self::$_table_name)->set([
+                                        'action_id' => $id,
+                                        'date'      => \DB::expr('CURRENT_TIMESTAMP'),
+                                        'status'    => 0,
+                                        'next_at'   => \DB::expr("DATE_ADD(CURRENT_TIMESTAMP, INTERVAL {$data['frequency']} DAY)"),
+                                    ])->execute();
+
+        //追加した内容をtoday_actionと同じ形で返したい
+        $added_record = \DB::select('actions.*', self::$_table_name .'.*')
+                            ->from('actions')
+                            ->join(self::$_table_name, 'LEFT')
+                            ->on('actions.id', '=', self::$_table_name.'.action_id')
+                            ->where(self::$_table_name.'.id', '=', $insert_id)
+                            ->execute()
+                            ->current();
+                
+        return $added_record;
     }
 
       

@@ -5,7 +5,7 @@ class Model_Actions extends \Model_Crud
 
     public static function get_all_actions()
     {
-        $result = \DB::select('name', 'frequency')
+        $result = \DB::select('*')
                         ->from(self::$table_name)
                         ->where('deleted', '=', 0)
                         ->order_by('id', 'ASC')
@@ -36,10 +36,17 @@ class Model_Actions extends \Model_Crud
 
     public static function create_new_action($data)
     {
-        \DB::insert(self::$table_name)->set([
-            'name'      => $data['name'],
-            'frequency' => $data['frequency'],
-            'color'     => '#000000', // 仮の色
-        ])->execute();
+        list($insert_id, $rows) = \DB::insert(self::$table_name)->set([
+                                        'name'      => $data['name'],
+                                        'frequency' => $data['frequency'],
+                                        'color'     => '#000000', // 仮の色
+                                    ])->execute();
+
+        $added_action = \DB::select('*')
+                            ->from(self::$table_name)
+                            ->where('id', '=', $insert_id)
+                            ->execute()
+                            ->current();
+        return $added_action;
     }
 }

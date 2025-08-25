@@ -73,7 +73,7 @@ class Model_Display extends \Model_Crud
 
     public static function get_continuous_display($today_actions) 
     {
-        $action_ids = array_column($today_actions, 'id');
+        $action_ids = array_column($today_actions, 'action_id');
 
         if (empty($action_ids)) {
             return [];

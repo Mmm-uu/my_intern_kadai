@@ -11,22 +11,22 @@
 <body>
     <div class="container">
         <section class="actions-section" id="actions-section">
-            <h2>行動一覧</h2>
+            <h3>行動一覧</h3>
             <?php echo $actions_view; ?>
         </section>
 
         <section class="today-section" id="today-section">
-             <h2>今日の行動一覧</h2>
+             <h3>今日の行動一覧</h3>
             <?php echo $today_view; ?>
         </section>
 
         <section class="records-section" id="display-section">
-             <h2>28日間の記録</h2>
+             <h3>28日間の記録</h3>
              <?php echo $display_view; ?> 
         </section>
 
         <section class="setting-section" id="setting-section">
-            <h2>設定</h2>
+            <h3>設定</h3>
             <?php echo $setting_view; ?>
         </section>
 
@@ -38,39 +38,40 @@
             padding: 10px 20px; 
         }
 
-        .records-section {
-            min-width: 800px;
-        }
-
-        .setting-section {
-            margin-left: auto;
-        }
-
         .actions-section,
         .today-section,
         .records-section,
         .setting-section {
             padding: 10px 20px;
+            min-width: 150px;
         }
 
+        .records-section {
+            min-width: 650px;
+        }
+
+        .setting-section {
+            margin-left: auto;
+        }
         
     </style>
     
     
     <script>
-        const actions_data = <?php echo json_encode($actions); ?>;
-        const today_data = <?php echo json_encode($today_actions); ?>;
+        const actions_data = ko.observableArray(<?php echo json_encode($actions); ?>);
+        const today_data = ko.observableArray(<?php echo json_encode($today_actions); ?>);
         const display_data = <?php echo json_encode($display); ?>;
 
         const actionsVM = new ActionsViewModel(actions_data);
         const todayVM = new TodayActionsViewModel(today_data);
         const displayVM = new DisplayViewModel(display_data);
-        const settingVM = new SettingViewModel(actionsVM, todayVM);
+        const settingVM = new SettingViewModel();
 
         ko.applyBindings(actionsVM, document.getElementById('actions-section'));
-        ko.applyBindings(settingVM, document.getElementById('setting-section'));
-        ko.applyBindings(displayVM, document.getElementById('display-section'));
         ko.applyBindings(todayVM, document.getElementById('today-section'));
+        ko.applyBindings(displayVM, document.getElementById('display-section'));
+        ko.applyBindings(settingVM, document.getElementById('setting-section'));
+        
         
     </script>
 

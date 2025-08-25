@@ -75,26 +75,31 @@ class Controller_Dashboard extends Controller
     public function action_setting()
     {
         $raw = file_get_contents('php://input');
-        $data = json_decode($raw, true);           //$dataはnameとfrequency
+        $data = json_decode($raw, true);           //$dataはnameとfrequencyと
 
         if (\Input::method() == 'POST' && $data) {
         
             //バリデーション書く?
 
-            //入力を直接使ってるから危険
-            \Model_Actions::create_new_action($data); 
-            \Model_Records::create_new_record($data);
+            //入力を直接使ってるから危険?
+            $added_action = \Model_Actions::create_new_action($data); 
+            $added_record = \Model_Records::create_new_record($data);
             
             return \Response::forge(
-                json_encode(['status' => 'success']), 
-                            200, 
-                            ['Content-Type' => 'application/json']
+                json_encode([
+                    'status' => 'success',
+                    'added_action' => $added_action,
+                    'added_record' => $added_record
+                ]), 
+                200, 
+                ['Content-Type' => 'application/json']
             );
         }
+
         return \Response::forge(
             json_encode(['status' => 'error']), 
-                        400, 
-                        ['Content-Type' => 'application/json']
+            400, 
+            ['Content-Type' => 'application/json']
         );
         
     }

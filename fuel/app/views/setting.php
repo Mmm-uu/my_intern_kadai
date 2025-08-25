@@ -13,10 +13,12 @@
 </style>
 
     
-
+<!-- 新しい行動を追加したら actionsテーブルと、recordsテーブルに追加
+                        画面にも反映　　　　　　　　　　　　　　　　　-->
 <script>
-    function SettingViewModel(actionsVM, todayVM) {
+    function SettingViewModel() {
         var self = this;
+
         self.nameToAdd = ko.observable("");
         self.frequencyToAdd = ko.observable(1);
         
@@ -27,12 +29,7 @@
                     name: self.nameToAdd(),
                     frequency: self.frequencyToAdd()
                 };
-                actionsVM.all_actions.push(data);
                 
-
-                data.isCompleted = ko.observable(0);
-                todayVM.all_today_actions.push(data);
-
                 fetch('/dashboard/setting', {
                     method: 'POST',
                     headers: {
@@ -42,9 +39,12 @@
                 })
                 .then(response => response.json())
                 .then(res => {
-                    console.log("サーバー応答:", res);
+                    console.log("サーバー応答:", res['status']);
+                    actions_data.push(res['added_action']);
+                    today_data.push(res['added_record']);
                     self.nameToAdd("");
                     self.frequencyToAdd(1);
+
                 })
                 .catch(error => {
                     console.log("送信エラー:", error);
