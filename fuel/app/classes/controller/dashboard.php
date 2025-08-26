@@ -103,6 +103,31 @@ class Controller_Dashboard extends Controller
         );
         
     }
+
+    public function action_delete()
+    {
+        $raw = file_get_contents('php://input');
+        $data = json_decode($raw, true);
+
+        if (\Input::method() == 'POST' && $data) {
+
+            \Model_Actions::delete_action($data);
+            
+            return \Response::forge(
+                json_encode([
+                    'status' => 'success'
+                ]), 
+                200, 
+                ['Content-Type' => 'application/json']
+            );
+        }
+        return \Response::forge(
+            json_encode(['status' => 'error']), 
+            400, 
+            ['Content-Type' => 'application/json']
+        );
+
+    }
 }
        
     

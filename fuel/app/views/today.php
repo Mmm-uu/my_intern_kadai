@@ -57,11 +57,16 @@
         self.all_today_actions = ko.observableArray(today_data().map(mapActions));
 
         today_data.subscribe(function(changes) {
-            console.log("today_dataに変更がありました:", changes);
             changes.forEach(change => {
+                console.log(change.status);
                 if (change.status === 'added') {
                     const mapped = mapActions(change.value);
                     self.all_today_actions.push(mapped);
+                }
+                else if (change.status === 'deleted') {
+                    self.all_today_actions.remove(function(item) {
+                        return item.action_id == change.value.action_id;
+                    });
                 }
             });
         }, null, "arrayChange");

@@ -3,7 +3,7 @@
         <span data-bind="text: name"></span>
         <!-- <span class="frequency">(<span data-bind="text: frequency"></span>)</span> -->
         <button data-bind="click: $parent.onMove">></button>
-        <button data-bind="click: $parent.onDelete">×</button>
+        <button data-bind="click: $parent.delete">×</button>
     </li>
 </ul>
 
@@ -39,6 +39,40 @@
 <script>
     function ActionsViewModel(actions_data){
         this.all_actions = actions_data;
+
+        this.delete = function(item) {
+
+            if (!confirm(`本当に 行動:${item.name} を削除しますか？\n削除すると今までの記録が失われます(；ω；)`)) {
+            return; // キャンセルなら何もしない
+            }
+
+            console.log(item.name);
+            actions_data.remove(item);
+            today_data.remove(function(data){
+                return data.action_id === item.id;
+            });
+
+            fetch('/dashboard/delete', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(item),
+            })
+            .then(response => response.json())
+            .then(res => {
+                    console.log("サーバー応答:", res['status']);
+            })
+            .catch(error => {
+                    console.log("送信エラー:", error);
+            });
+
+        }.bind(this);
+
+
+
+
+
 
         
 

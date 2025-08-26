@@ -1,12 +1,12 @@
 <?php
 class Model_Actions extends \Model_Crud
 {
-    protected static $table_name = 'actions';
+    protected static $_table_name = 'actions';
 
     public static function get_all_actions()
     {
         $result = \DB::select('*')
-                        ->from(self::$table_name)
+                        ->from(self::$_table_name)
                         ->where('deleted', '=', 0)
                         ->order_by('id', 'ASC')
                         ->execute()
@@ -16,8 +16,8 @@ class Model_Actions extends \Model_Crud
 
     public static function get_today_actions()
     {
-        return \DB::select(self::$table_name . '.*', 'records.*')
-                    ->from(self::$table_name)
+        return \DB::select(self::$_table_name . '.*', 'records.*')
+                    ->from(self::$_table_name)
                     ->join('records', 'LEFT')
                     ->on('actions.id', '=', 'records.action_id')
                     ->where('actions.deleted', '=', 0)
@@ -36,17 +36,26 @@ class Model_Actions extends \Model_Crud
 
     public static function create_new_action($data)
     {
-        list($insert_id, $rows) = \DB::insert(self::$table_name)->set([
+        list($insert_id, $rows) = \DB::insert(self::$_table_name)->set([
                                         'name'      => $data['name'],
                                         'frequency' => $data['frequency'],
                                         'color'     => '#000000', // 仮の色
                                     ])->execute();
 
         $added_action = \DB::select('*')
-                            ->from(self::$table_name)
+                            ->from(self::$_table_name)
                             ->where('id', '=', $insert_id)
                             ->execute()
                             ->current();
         return $added_action;
     }
+
+
+    public static function delete_action($data) //$data = actions_dataの形
+    {
+        \DB::delete(self::$_table_name)
+            ->where('id', '=', $data['id'])
+            ->execute();
+    }
+
 }
