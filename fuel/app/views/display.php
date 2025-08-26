@@ -3,7 +3,7 @@
 <script>
     function DisplayViewModel(display_data){
         var self = this;
-        self.all_display = ko.observableArray(display_data);
+        self.all_display = display_data;
 
         self.chartLabels = ko.computed(function() {
             return self.all_display().map(item => item.name);
@@ -21,6 +21,7 @@
             });
         });
 
+        let chartInstance = null;
 
         self.drawChart = function() {
             const ctx = document.getElementById('myChart');
@@ -70,7 +71,15 @@
                 }
             };
 
-            new Chart(ctx, config);
+            if (chartInstance) {
+                // データだけ更新して再描画
+                chartInstance.data.labels = self.chartLabels();
+                chartInstance.data.datasets[0].data = self.chartData();
+                chartInstance.update();
+            } else {
+                // 初回のみチャート作成
+                chartInstance = new Chart(ctx, config);
+            }
         };
 
         self.drawChart();

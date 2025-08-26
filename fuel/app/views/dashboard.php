@@ -60,7 +60,7 @@
     <script>
         const actions_data = ko.observableArray(<?php echo json_encode($actions); ?>);
         const today_data = ko.observableArray(<?php echo json_encode($today_actions); ?>);
-        const display_data = <?php echo json_encode($display); ?>;
+        const display_data = ko.observableArray(<?php echo json_encode($display); ?>);
 
         const actionsVM = new ActionsViewModel(actions_data);
         const todayVM = new TodayActionsViewModel(today_data);

@@ -69,6 +69,19 @@ class Model_Display extends \Model_Crud
                     ->execute();
             }
         }
+
+        $added_display = \DB::select(
+                                'actions.name', 
+                                [\DB::expr('DATE('.self::$_table_name.'.start_at)'), 'start_at'],
+                                [\DB::expr('DATE('.self::$_table_name.'.last_completed_at)'), 'last_completed_at']
+                                )
+                            ->from(self::$_table_name)
+                            ->join('actions', 'INNER')
+                            ->on('display.action_id', '=', 'actions.id')
+                            ->where('display.action_id', '=', $data['action_id'])
+                            ->execute()
+                            ->current();
+        return $added_display;
     }
 
     public static function get_continuous_display($today_actions) 
@@ -86,7 +99,7 @@ class Model_Display extends \Model_Crud
                         )
                     ->from(self::$_table_name)
                     ->join('actions', 'INNER')
-                    ->on('display.action_id', '=', "actions.id")
+                    ->on('display.action_id', '=', 'actions.id')
                     ->where('display.action_id', 'IN', $action_ids)
                     ->execute()
                     ->as_array();

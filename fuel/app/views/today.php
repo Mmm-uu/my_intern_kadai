@@ -42,7 +42,10 @@
                     }),
                 })
                 .then(response => response.json())
-                .then(data => console.log('更新成功:', data))
+                .then(res => {
+                    console.log('更新成功:', res['status']);
+                    display_data.push(res['added_display']);
+                    })
                 .catch(err => console.error('更新失敗:', err));
             });
 

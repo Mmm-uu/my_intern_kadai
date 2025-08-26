@@ -49,24 +49,27 @@ class Controller_Dashboard extends Controller
     public function action_completed()
     {
         $raw = file_get_contents('php://input');
-        $data = json_decode($raw, true);
+        $data = json_decode($raw, true); //$dataは、action_idとstatus
         
 
         if (\Input::method() == 'POST' && isset($data['action_id']) && isset($data['status'])) {
 
             \Model_Records::change_status_record($data);
-            \Model_Display::create_continuous_display($data);
+            $added_display = \Model_Display::create_continuous_display($data);
 
             return \Response::forge(
-                json_encode(['status' => 'success']), 
-                            200, 
-                            ['Content-Type' => 'application/json']
+                json_encode([
+                    'status' => 'success',
+                    'added_display' => $added_display
+                ]), 
+                200, 
+                ['Content-Type' => 'application/json']
             );
         }
         return \Response::forge(
             json_encode(['status' => 'error']), 
-                        400, 
-                        ['Content-Type' => 'application/json']
+            400, 
+            ['Content-Type' => 'application/json']
         );
     }
     
@@ -112,6 +115,7 @@ class Controller_Dashboard extends Controller
         if (\Input::method() == 'POST' && $data) {
 
             \Model_Actions::delete_action($data);
+            //\Model_Records::delete_record($data);
             
             return \Response::forge(
                 json_encode([
