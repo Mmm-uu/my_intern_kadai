@@ -42,7 +42,7 @@
 
         this.delete = function(item) {
 
-            if (!confirm(`本当に 行動:${item.name} を削除しますか？\n削除すると今までの記録が失われます(；ω；)`)) {
+            if (!confirm(`本当に 行動:${item.name} を削除しますか？\n削除すると今までの記録が表示されなくなります(；ω；)`)) {
             return; // キャンセルなら何もしない
             }
 
@@ -50,6 +50,9 @@
             actions_data.remove(item);
             today_data.remove(function(data){
                 return data.action_id === item.id;
+            });
+            display_data.remove(function(data){
+                return  data.action_id === item.id;
             });
 
             fetch('/dashboard/delete', {

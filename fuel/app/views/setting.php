@@ -42,6 +42,7 @@
                     console.log("サーバー応答:", res['status']);
                     actions_data.push(res['added_action']);
                     today_data.push(res['added_record']);
+                    display_data.push(res['added_display']);
                     self.nameToAdd("");
                     self.frequencyToAdd(1);
 

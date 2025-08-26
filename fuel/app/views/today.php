@@ -44,7 +44,20 @@
                 .then(response => response.json())
                 .then(res => {
                     console.log('更新成功:', res['status']);
-                    display_data.push(res['added_display']);
+                    
+                    //display描画用
+                    let item = display_data().find(x => x.id === res['change_display'].id);
+                    if (item) {
+                        let day = res['change_display'].last_completed_at;
+                        if (day!= null) {
+                        item.last_completed_at = day.slice(0, 10);
+                        }
+                        else {
+                            item.last_completed_at = day;
+                        }
+                    };
+                    console.log(item.last_completed_at);
+                    display_data.valueHasMutated();
                     })
                 .catch(err => console.error('更新失敗:', err));
             });

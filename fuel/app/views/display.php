@@ -1,4 +1,8 @@
-<canvas id="myChart"></canvas>
+<div id="chartContainer">
+    <canvas id="myChart"></canvas>
+</div>
+
+
 
 <script>
     function DisplayViewModel(display_data){
@@ -11,13 +15,22 @@
 
         self.chartData = ko.computed(function() {
             return self.all_display().map(item => {
-                let start = new Date(item.start_at);
-                let end = new Date(item.last_completed_at);
-                end.setDate(end.getDate() + 1);
-                return {
-                    x: [start, end],
-                    y: item.name
-                };
+                if (item.last_completed_at) {  //継続記録がある場合
+                    let start = new Date(item.start_at + "T12:00:00");        //表示のために時間を設定
+                    let end = new Date(item.last_completed_at + "T12:00:00"); //表示のために時間を設定
+                    start.setDate(start.getDate() - 1);                       //表示のために日付けを変更
+                    return {
+                        x: [start, end],
+                        y: item.name
+                    };
+                }
+                else { //継続記録がない場合
+                    let start = new Date(item.start_at);
+                    return {
+                        x: [start, start],
+                        y: [item.name]
+                    }
+                }
             });
         });
 
@@ -48,6 +61,7 @@
                 type: 'bar',
                 data: data,
                 options: {
+                    maintainAspectRatio: false,
                     borderSkipped: false,
                     indexAxis: 'y',
                     responsive: true,
@@ -61,10 +75,10 @@
                     },
                     plugins: {
                         legend: {
-                            position: 'top',
+                            position: 'buttom',
                         },
                         title: {
-                            display: true,
+                            display: false,
                             text: 'Chart.js Floating Bar Chart'
                         }
                     }
@@ -72,19 +86,36 @@
             };
 
             if (chartInstance) {
-                // データだけ更新して再描画
-                chartInstance.data.labels = self.chartLabels();
-                chartInstance.data.datasets[0].data = self.chartData();
-                chartInstance.update();
-            } else {
+                // データだけ更新して再描画→このパターンにするとアニメーションがつかない
+                //chartInstance.data.labels = self.chartLabels();
+                //chartInstance.data.datasets[0].data = self.chartData();
+                //chartInstance.update();
+                chartInstance.destroy();
+            } //else {
                 // 初回のみチャート作成
-                chartInstance = new Chart(ctx, config);
-            }
+                //chartInstance = new Chart(ctx, config);
+            //}
+            chartInstance = new Chart(ctx, config);
         };
 
         self.drawChart();
 
-        self.all_display.subscribe(function() {
+        
+        // self.all_display.subscribe(function() {
+            // self.drawChart();
+        // });
+        
+        const baseHeight = 30; // 項目ごとの高さ(px)
+
+        function adjustChartHeight(items) {
+            const newHeight = 50 + items.length * baseHeight;
+            document.getElementById('chartContainer').style.height = newHeight + "px";
+        }
+
+        adjustChartHeight(self.all_display()); // 初期ロード時に高さ調整
+
+        self.all_display.subscribe(function(newItems) {
+            adjustChartHeight(newItems); // 更新時にも高さ調整
             self.drawChart();
         });
 

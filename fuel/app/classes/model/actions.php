@@ -53,7 +53,8 @@ class Model_Actions extends \Model_Crud
 
     public static function delete_action($data) //$data = actions_dataの形
     {
-        \DB::delete(self::$_table_name)
+        \DB::update(self::$_table_name)
+            ->value('deleted', 1)
             ->where('id', '=', $data['id'])
             ->execute();
     }

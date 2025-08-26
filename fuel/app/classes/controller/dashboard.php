@@ -55,12 +55,12 @@ class Controller_Dashboard extends Controller
         if (\Input::method() == 'POST' && isset($data['action_id']) && isset($data['status'])) {
 
             \Model_Records::change_status_record($data);
-            $added_display = \Model_Display::create_continuous_display($data);
+            $change_display = \Model_Display::change_display($data);
 
             return \Response::forge(
                 json_encode([
                     'status' => 'success',
-                    'added_display' => $added_display
+                    'change_display' => $change_display
                 ]), 
                 200, 
                 ['Content-Type' => 'application/json']
@@ -87,12 +87,14 @@ class Controller_Dashboard extends Controller
             //入力を直接使ってるから危険?
             $added_action = \Model_Actions::create_new_action($data); 
             $added_record = \Model_Records::create_new_record($data);
+            $added_display = \Model_Display::create_display($added_record);
             
             return \Response::forge(
                 json_encode([
                     'status' => 'success',
                     'added_action' => $added_action,
-                    'added_record' => $added_record
+                    'added_record' => $added_record,
+                    'added_display' => $added_display
                 ]), 
                 200, 
                 ['Content-Type' => 'application/json']
