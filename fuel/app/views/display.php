@@ -5,30 +5,30 @@
 
 
 <script>
-    function DisplayViewModel(display_data){
+    function DisplayViewModel(){
         var self = this;
-        self.all_display = display_data;
+        //display_data = display_data;
 
         self.chartLabels = ko.computed(function() {
-            return self.all_display().map(item => item.name);
+            return display_data().map(item => item.name());
         });
 
         self.chartData = ko.computed(function() {
-            return self.all_display().map(item => {
-                if (item.last_completed_at) {  //継続記録がある場合
+            return display_data().map(item => {
+                if (item.last_completed_at()) {  //継続記録がある場合
                     let start = new Date(item.start_at + "T12:00:00");        //表示のために時間を設定
-                    let end = new Date(item.last_completed_at + "T12:00:00"); //表示のために時間を設定
+                    let end = new Date(item.last_completed_at() + "T12:00:00"); //表示のために時間を設定
                     start.setDate(start.getDate() - 1);                       //表示のために日付けを変更
                     return {
                         x: [start, end],
-                        y: item.name
+                        y: item.name()
                     };
                 }
                 else { //継続記録がない場合
                     let start = new Date(item.start_at);
                     return {
                         x: [start, start],
-                        y: [item.name]
+                        y: [item.name()]
                     }
                 }
             });
@@ -101,7 +101,7 @@
         self.drawChart();
 
         
-        // self.all_display.subscribe(function() {
+        // display_data.subscribe(function() {
             // self.drawChart();
         // });
         
@@ -112,9 +112,9 @@
             document.getElementById('chartContainer').style.height = newHeight + "px";
         }
 
-        adjustChartHeight(self.all_display()); // 初期ロード時に高さ調整
+        adjustChartHeight(display_data()); // 初期ロード時に高さ調整
 
-        self.all_display.subscribe(function(newItems) {
+        display_data.subscribe(function(newItems) {
             adjustChartHeight(newItems); // 更新時にも高さ調整
             self.drawChart();
         });

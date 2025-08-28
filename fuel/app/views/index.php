@@ -2,7 +2,7 @@
     <li>
         <span data-bind="text: name"></span>
         <!-- <span class="frequency">(<span data-bind="text: frequency"></span>)</span> -->
-        <button data-bind="click: $parent.onMove">></button>
+        <button data-bind="click: $parent.show">></button>
         <button data-bind="click: $parent.delete">×</button>
     </li>
 </ul>
@@ -37,16 +37,19 @@
 </style>
   
 <script>
-    function ActionsViewModel(actions_data){
+    function ActionsViewModel(){
         this.all_actions = actions_data;
 
+        //削除
         this.delete = function(item) {
 
-            if (!confirm(`本当に 行動:${item.name} を削除しますか？\n削除すると今までの記録が表示されなくなります(；ω；)`)) {
-            return; // キャンセルなら何もしない
+            //確認
+            if (!confirm(`本当に 行動:${item.name()} を削除しますか？\n削除すると今までの記録が表示されなくなります(；ω；)`)) {
+                return; // キャンセルなら何もしない
             }
 
-            console.log(item.name);
+            //配列から削除
+            console.log(item.name());
             actions_data.remove(item);
             today_data.remove(function(data){
                 return data.action_id === item.id;
@@ -55,11 +58,10 @@
                 return  data.action_id === item.id;
             });
 
+            //サーバーに送信
             fetch('/dashboard/delete', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(item),
             })
             .then(response => response.json())
@@ -72,6 +74,11 @@
 
         }.bind(this);
 
+
+        //設定表示
+        this.show = function(item) {
+            console.log(item.name());
+        }
 
 
 

@@ -12,7 +12,7 @@ class Controller_Dashboard extends Controller
         $actions = \Model_Actions::get_all_actions();
         $actions_view = \View::forge('index');
 
-        $today_actions = \Model_Actions::get_today_actions();
+        $today_actions = \Model_Records::get_today_actions();
         $today_view = \View::forge('today');
 
         $display = \Model_Display::get_continuous_display($today_actions);

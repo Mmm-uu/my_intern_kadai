@@ -23,12 +23,54 @@ class Model_Records extends \Model_Crud
         $added_record = \DB::select('actions.*', self::$_table_name .'.*')
                             ->from('actions')
                             ->join(self::$_table_name, 'LEFT')
-                            ->on('actions.id', '=', self::$_table_name.'.action_id')
+                            ->on('actions.id', '=', self::$_table_name .'.action_id')
                             ->where(self::$_table_name.'.id', '=', $insert_id)
                             ->execute()
                             ->current();
                 
         return $added_record;
+    }
+
+    public static function get_today_actions()
+    {
+        return \DB::select('actions.*', self::$_table_name . '.*')
+                    ->from('actions')
+                    ->join(self::$_table_name, 'LEFT')
+                    ->on('actions.id', '=', self::$_table_name . '.action_id')
+                    ->where('actions.deleted', '=', 0)
+                    ->where(\DB::expr('DATE(' . self::$_table_name . '.date)'), '=', \DB::expr('CURDATE()'))
+                    //->and_where_open()
+                    //    ->where(\DB::expr('DATE(self::$_table_name . '.next_at')'), '=', \DB::expr('CURDATE()'))
+                    //    ->or_where(\DB::expr('DATE(self::$_table_name . '.date')'), '=', \DB::expr('CURDATE()'))
+                    //->and_where_close()
+                    //->and_where_open()
+                    //    ->where(\DB::expr('DATE(records.date)'), '=', \DB::expr('DATE_SUB(CURDATE(), INTERVAL actions.frequency DAY)'))
+                    //    ->or_where(\DB::expr('DATE(actions.created_at)'), '=', \DB::expr('DATE_SUB(CURDATE(), INTERVAL actions.frequency DAY)'))
+                    //    ->or_where(\DB::expr('DATE(actions.created_at)'), '=', \DB::expr('CURDATE()'))
+                    //->and_where_close()
+                    ->execute()
+                    ->as_array();
+    }
+
+    public static function get_tomorrow_actions()
+    {
+        return \DB::select('actions.*', self::$_table_name . '.*')
+                    ->from('actions')
+                    ->join(self::$_table_name, 'LEFT')
+                    ->on('actions.id', '=', self::$_table_name . '.action_id')
+                    ->where('actions.deleted', '=', 0)
+                    ->where(\DB::expr('DATE(' . self::$_table_name . '.next_at)'), '=', \DB::expr('CURDATE()'))
+                    //->and_where_open()
+                    //    ->where(\DB::expr('DATE(self::$_table_name . '.next_at')'), '=', \DB::expr('CURDATE()'))
+                    //    ->or_where(\DB::expr('DATE(self::$_table_name . '.date')'), '=', \DB::expr('CURDATE()'))
+                    //->and_where_close()
+                    //->and_where_open()
+                    //    ->where(\DB::expr('DATE(records.date)'), '=', \DB::expr('DATE_SUB(CURDATE(), INTERVAL actions.frequency DAY)'))
+                    //    ->or_where(\DB::expr('DATE(actions.created_at)'), '=', \DB::expr('DATE_SUB(CURDATE(), INTERVAL actions.frequency DAY)'))
+                    //    ->or_where(\DB::expr('DATE(actions.created_at)'), '=', \DB::expr('CURDATE()'))
+                    //->and_where_close()
+                    ->execute()
+                    ->as_array();
     }
 
       

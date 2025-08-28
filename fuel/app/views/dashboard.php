@@ -58,13 +58,49 @@
     
     
     <script>
-        const actions_data = ko.observableArray(<?php echo json_encode($actions); ?>);
-        const today_data = ko.observableArray(<?php echo json_encode($today_actions); ?>);
-        const display_data = ko.observableArray(<?php echo json_encode($display); ?>);
+        const actions_data_raw = <?php echo json_encode($actions); ?>;
+        const actions_data = ko.observableArray(
+            actions_data_raw.map(a => ({
+                id:         a.id,
+                name:       ko.observable(a.name),
+                frequency:  ko.observable(a.frequency),
+                color:      ko.observable(a.color),
+                create_at:  a.create_at,
+                deleted:    ko.observable(a.deleted_at)
+            }))
+        );
 
-        const actionsVM = new ActionsViewModel(actions_data);
-        const todayVM = new TodayActionsViewModel(today_data);
-        const displayVM = new DisplayViewModel(display_data);
+        const today_data_raw = <?php echo json_encode($today_actions); ?>;
+        const today_data = ko.observableArray(
+            today_data_raw.map(t => ({
+                id:         t.id,
+                name:       ko.observable(t.name),
+                frequency:  ko.observable(t.frequency),
+                color:      ko.observable(t.color),
+                create_at:  t.create_at,
+                deleted:    ko.observable(t.deleted_at),
+                action_id:  t.action_id,
+                data:       t.data,
+                status:     ko.observable(t.status),
+                next_at:    t.next_at
+            }))
+        );
+
+        const display_data_raw = <?php echo json_encode($display); ?>;
+        const display_data = ko.observableArray(
+            display_data_raw.map(d => ({
+                id:                 d.id,
+                action_id:          d.action_id,
+                name:               ko.observable(d.name),
+                current_streak:     ko.observable(d.current_streak),
+                start_at:           d.start_at,
+                last_completed_at:  ko.observable(d.last_completed_at)
+            }))
+        );
+
+        const actionsVM = new ActionsViewModel();
+        const displayVM = new DisplayViewModel();
+        const todayVM = new TodayActionsViewModel();
         const settingVM = new SettingViewModel();
 
         ko.applyBindings(actionsVM, document.getElementById('actions-section'));

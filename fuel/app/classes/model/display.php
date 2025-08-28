@@ -15,6 +15,7 @@ class Model_Display extends \Model_Crud
                                 self::$_table_name . '.id',
                                 self::$_table_name .'.action_id',
                                 'actions.name', 
+                                'current_streak',
                                 [\DB::expr('DATE('.self::$_table_name.'.start_at)'), 'start_at'],
                                 [\DB::expr('DATE('.self::$_table_name.'.last_completed_at)'), 'last_completed_at']
                                 ) 
@@ -52,7 +53,7 @@ class Model_Display extends \Model_Crud
         }
         else { //チェックが外された
 
-            //最新で何回継続中か
+            //最新で何回継続中か知りたい
             $item = \DB::select('id', 'current_streak')
                         ->from(self::$_table_name)
                         ->where('action_id', '=', $data['action_id'])
@@ -74,10 +75,10 @@ class Model_Display extends \Model_Crud
             else {
                 \DB::update(self::$_table_name)
                             ->value('current_streak', \DB::expr('current_streak - 1'))
-                            ->value('last_completed_at', \DB::expr("DATE_SUB(CURRENT_TIMESTAMP, INTERVAL {$frequency} DAY)"))
+                            ->value('last_completed_at', \DB::expr("DATE_SUB(last_completed_at, INTERVAL {$frequency} DAY)"))
                             ->value('next_target_at', \DB::expr('CURRENT_TIMESTAMP'))
                             ->where('action_id', '=', $data['action_id'])
-                            ->and_where(\DB::expr('DATE(next_target_at)'), '=', \DB::expr('CURDATE()'))
+                            ->and_where(\DB::expr('DATE(next_target_at)'), '=', \DB::expr("DATE_ADD(CURDATE(), INTERVAL {$frequency} DAY)"))
                             ->execute();
             }
         }
@@ -86,6 +87,7 @@ class Model_Display extends \Model_Crud
                                 self::$_table_name . '.id',
                                 self::$_table_name .'.action_id',
                                 'actions.name', 
+                                'current_streak',
                                 'start_at',
                                 'last_completed_at'
                             )
@@ -100,6 +102,9 @@ class Model_Display extends \Model_Crud
         return $change_display;
     }
 
+
+
+    //使ってない
     public static function create_continuous_display($data) //$dataはaction_idとstatus
     {
         $frequency = \DB::select('frequency')
@@ -181,6 +186,7 @@ class Model_Display extends \Model_Crud
         return $added_display;
     }
 
+    
     public static function get_continuous_display($today_actions) 
     {
         $action_ids = array_column($today_actions, 'action_id');
@@ -193,6 +199,7 @@ class Model_Display extends \Model_Crud
                         self::$_table_name . '.id',
                         self::$_table_name .'.action_id',
                         'actions.name',
+                        'current_streak',
                         [\DB::expr('DATE('.self::$_table_name.'.start_at)'), 'start_at'],
                         [\DB::expr('DATE('.self::$_table_name.'.last_completed_at)'), 'last_completed_at']
                         )

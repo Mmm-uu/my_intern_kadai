@@ -14,26 +14,6 @@ class Model_Actions extends \Model_Crud
         return $result;
     }
 
-    public static function get_today_actions()
-    {
-        return \DB::select(self::$_table_name . '.*', 'records.*')
-                    ->from(self::$_table_name)
-                    ->join('records', 'LEFT')
-                    ->on('actions.id', '=', 'records.action_id')
-                    ->where('actions.deleted', '=', 0)
-                    ->and_where_open()
-                        ->where(\DB::expr('DATE(records.next_at)'), '=', \DB::expr('CURDATE()'))
-                        ->or_where(\DB::expr('DATE(records.date)'), '=', \DB::expr('CURDATE()'))
-                    ->and_where_close()
-                    //->and_where_open()
-                    //    ->where(\DB::expr('DATE(records.date)'), '=', \DB::expr('DATE_SUB(CURDATE(), INTERVAL actions.frequency DAY)'))
-                    //    ->or_where(\DB::expr('DATE(actions.created_at)'), '=', \DB::expr('DATE_SUB(CURDATE(), INTERVAL actions.frequency DAY)'))
-                    //    ->or_where(\DB::expr('DATE(actions.created_at)'), '=', \DB::expr('CURDATE()'))
-                    //->and_where_close()
-                    ->execute()
-                    ->as_array();
-    }
-
     public static function create_new_action($data)
     {
         list($insert_id, $rows) = \DB::insert(self::$_table_name)->set([
