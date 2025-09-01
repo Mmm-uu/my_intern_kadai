@@ -3,18 +3,19 @@ class Model_Display extends \Model_Crud
 {
     protected static $_table_name = 'display';
 
-    public static function create_display($added_record) //$added_recordはtoday_data形式
+    public static function create_display($added_action) //$added_actionはactions_data形式
     {
         
         list($insert_id, $rows) = \DB::insert(self::$_table_name) -> set([
-                                        'action_id' => $added_record['action_id'],
-                                        'start_at' => $added_record['date']
+                                        'action_id' => $added_action['id'],
+                                        'start_at' => $added_action['created_at']
                                     ])->execute();
 
         $added_display = \DB::select(
                                 self::$_table_name . '.id',
                                 self::$_table_name .'.action_id',
                                 'actions.name', 
+                                'actions.color',
                                 'current_streak',
                                 [\DB::expr('DATE('.self::$_table_name.'.start_at)'), 'start_at'],
                                 [\DB::expr('DATE('.self::$_table_name.'.last_completed_at)'), 'last_completed_at']
@@ -87,6 +88,7 @@ class Model_Display extends \Model_Crud
                                 self::$_table_name . '.id',
                                 self::$_table_name .'.action_id',
                                 'actions.name', 
+                                'actions.color',
                                 'current_streak',
                                 'start_at',
                                 'last_completed_at'
@@ -199,6 +201,7 @@ class Model_Display extends \Model_Crud
                         self::$_table_name . '.id',
                         self::$_table_name .'.action_id',
                         'actions.name',
+                        'actions.color',
                         'current_streak',
                         [\DB::expr('DATE('.self::$_table_name.'.start_at)'), 'start_at'],
                         [\DB::expr('DATE('.self::$_table_name.'.last_completed_at)'), 'last_completed_at']
@@ -210,6 +213,40 @@ class Model_Display extends \Model_Crud
                     ->execute()
                     ->as_array();
         return $result;
+
+    }
+
+    public static function edit_display($record_result)
+    {
+        $edit_id = \DB::select('id')
+                        ->from(self::$_table_name)
+                        ->where('action_id', '=', $record_result['action_id'])
+                        ->order_by('start_at', 'desc')
+                        ->limit(1)
+                        ->execute()
+                        ->get('id');
+
+        \DB::update(self::$_table_name)
+                    ->value('next_target_at', \DB::expr('CURRENT_TIMESTAMP'))
+                    ->where('id', '=', $edit_id)
+                    ->execute();
+
+        $display_result = \DB::select(
+                        self::$_table_name . '.id',
+                        self::$_table_name .'.action_id',
+                        'actions.name',
+                        'actions.color',
+                        'current_streak',
+                        [\DB::expr('DATE('.self::$_table_name.'.start_at)'), 'start_at'],
+                        [\DB::expr('DATE('.self::$_table_name.'.last_completed_at)'), 'last_completed_at']
+                        )
+                    ->from(self::$_table_name)
+                    ->join('actions', 'INNER')
+                    ->on('display.action_id', '=', 'actions.id')
+                    ->where('display.id', '=', $edit_id)
+                    ->execute()
+                    ->current();
+        return $display_result;
 
     }
 }

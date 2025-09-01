@@ -21,6 +21,19 @@ class Daily_update
                 'status'    => 0,
                 'next_at'   => \DB::expr("DATE_ADD(CURRENT_TIMESTAMP, INTERVAL {$action['frequency']} DAY)")
             ])->execute();
+
+            $display_exist = \DB::select('*')
+                                ->from('display')
+                                ->where('action_id', '=', $action['action_id'])
+                                ->and_where(\DB::expr('DATE(next_target_at)'), '=',  \DB::expr('CURDATE()'))
+                                ->execute()
+                                ->current();
+
+            if (!$display_exist) {
+                \DB::insert('display')->set([
+                    'action_id' => $action['action_id']
+                ])->execute();
+            }
         }
         echo "New records inserted.\n";
 

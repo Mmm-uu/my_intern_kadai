@@ -35,15 +35,15 @@ class Controller_Dashboard extends Controller
 
     //新しいレコードを作る
     //今日の行動のレコードが追加されて、未完了の状態が記録される
-    public function action_record($today_actions = null)
-    {
-        if ($today_actions) {
-            \Model_Records::add_new_record($today_actions['id']);
+    //public function action_record($today_actions = null)
+    //{
+    //    if ($today_actions) {
+    //        \Model_Records::add_new_record($today_actions['id']);
         
-            \Response::redirect('dashboard');
-        }
-        return \View::forge('dashboard');
-    }
+     //       \Response::redirect('dashboard');
+      //  }
+     //   return \View::forge('dashboard');
+    //}
 
     //チェックボックスの状態を受け取る
     public function action_completed()
@@ -86,8 +86,8 @@ class Controller_Dashboard extends Controller
 
             //入力を直接使ってるから危険?
             $added_action = \Model_Actions::create_new_action($data); 
-            $added_record = \Model_Records::create_new_record($data);
-            $added_display = \Model_Display::create_display($added_record);
+            $added_display = \Model_Display::create_display($added_action);
+            $added_record = \Model_Records::create_new_record($data);//順番大事
             
             return \Response::forge(
                 json_encode([
@@ -107,6 +107,40 @@ class Controller_Dashboard extends Controller
             ['Content-Type' => 'application/json']
         );
         
+    }
+
+    public function action_edit() 
+    {
+        $raw = file_get_contents('php://input');
+        $data = json_decode($raw, true);
+
+        if (\Input::method() == 'POST' && $data) {
+
+            $edited_action = \Model_Actions::edit_action($data); //$dataはnameとfrequencyとid(action)とbefore_frequency
+            $record_result = \Model_Records::edit_record($data);  //$edit_resultがnullなら今日の行動に変化はない
+            if ($record_result) {
+                $display_result = \Model_Display::edit_display($record_result);
+            }
+            else {
+                $record_result = null;
+                $display_result = null;
+            }
+            return \Response::forge(
+                json_encode([
+                    'status' => 'success',
+                    'edited_action' => $edited_action,  //$edited_actionはnameとfrequency
+                    'record_result' => $record_result,      //$record_resultはnullかインサートした今日のレコード
+                    'display_result' => $display_result     //$display_resultはnullかインサートした今日のグラフのデータ
+                ]),
+                200,
+                ['Content-Type' => 'application/json']
+            );
+        }
+        return \Response::forge(
+            json_encode(['status' => 'error']), 
+            400, 
+            ['Content-Type' => 'application/json']
+        );
     }
 
     public function action_delete()

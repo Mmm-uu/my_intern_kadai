@@ -1,38 +1,78 @@
+<h3 class="display-header">28日間の記録</h3>
 <div id="chartContainer">
     <canvas id="myChart"></canvas>
 </div>
 
-
+<style>
+    .display-header {
+        padding-bottom: 60px;
+    }
+</style>
 
 <script>
     function DisplayViewModel(){
         var self = this;
         //display_data = display_data;
 
-        self.chartLabels = ko.computed(function() {
-            return display_data().map(item => item.name());
-        });
+        //self.chartLabels = ko.computed(function() {
+        //    return display_data().map(item => item.name());
+        //});
 
         self.chartData = ko.computed(function() {
-            return display_data().map(item => {
-                if (item.last_completed_at()) {  //継続記録がある場合
+            const grouped = {};
+
+            display_data().map(item => {
+                if (!grouped[item.action_id]) grouped[item.action_id] = [];
+                grouped[item.action_id].push(item);
+            });
+
+            const result = [];
+            for (const action_id in grouped) {
+                const items = grouped[action_id];
+
+                items.forEach(item => {
                     let start = new Date(item.start_at + "T12:00:00");        //表示のために時間を設定
-                    let end = new Date(item.last_completed_at() + "T12:00:00"); //表示のために時間を設定
-                    start.setDate(start.getDate() - 1);                       //表示のために日付けを変更
-                    return {
+                    start.setDate(start.getDate() - 1);
+                    let end = item.last_completed_at()
+                                    ? new Date(item.last_completed_at() + "T12:00:00") //表示のために時間を設定
+                                    : start;                   //表示のために日付けを変更
+                    result.push({
                         x: [start, end],
-                        y: item.name()
-                    };
-                }
-                else { //継続記録がない場合
-                    let start = new Date(item.start_at);
-                    return {
-                        x: [start, start],
-                        y: [item.name()]
-                    }
+                        y: items[0].name(),
+                        action_id: action_id
+                    });
+                });
+            }
+            return result;
+        });
+
+        self.chartLabels = ko.computed(function() {
+            const labels = [];
+            const seen = new Set();
+            display_data().forEach(item => {
+                if (!seen.has(item.action_id)) {
+                    labels.push(item.name());
+                    seen.add(item.action_id);
                 }
             });
+            return labels;
         });
+
+        self.chartColor = ko.computed(function() {
+        const colorMap = {};
+        display_data().forEach(item => {
+            if (!colorMap[item.action_id]) {
+                colorMap[item.action_id] = item.color;
+            }
+        });
+
+        const colors = self.chartData().map(dataPoint => {
+            return colorMap[dataPoint.action_id];
+        });
+
+        return colors;
+    });
+
 
         let chartInstance = null;
 
@@ -49,10 +89,8 @@
                 datasets: [{
                     label: '継続状況',
                     data: self.chartData(),
-                    backgroundColor: 
-                        'rgba(255, 99, 132, 0.2)',
-                    borderColor: 
-                        'rgba(255,99,132,1)',
+                    backgroundColor: self.chartColor(),
+                    borderColor: self.chartColor(),
                     borderWidth: 1
                 }]
             };
@@ -98,18 +136,29 @@
             chartInstance = new Chart(ctx, config);
         };
 
-        self.drawChart();
+        ko.computed(function() {
+            display_data().forEach(item => {
+                item.name();             
+                item.current_streak();   
+                item.last_completed_at();
+            });
+            self.drawChart();            
+        });
+
 
         
         // display_data.subscribe(function() {
             // self.drawChart();
         // });
         
-        const baseHeight = 30; // 項目ごとの高さ(px)
+        const baseHeight = 42; // 項目ごとの高さ(px)
 
         function adjustChartHeight(items) {
-            const newHeight = 50 + items.length * baseHeight;
+            const uniqueActions = [...new Set(items.map(item => item.action_id))];
+            const newHeight = 50 + uniqueActions.length * baseHeight;
             document.getElementById('chartContainer').style.height = newHeight + "px";
+                //const newHeight = 50 + items.length * baseHeight;
+                //document.getElementById('chartContainer').style.height = newHeight + "px";
         }
 
         adjustChartHeight(display_data()); // 初期ロード時に高さ調整
