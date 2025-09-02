@@ -116,9 +116,16 @@
                     return false;
                 }
 
+                const frequency_int = parseInt(self.frequencyToAdd(), 10);
+                if (isNaN(frequency_int) || frequency_int <= 0) {
+                    alert("頻度は正の整数を入力してください");
+                    return false;
+                }
+                self.frequencyToAdd(frequency_int);
+
                 const data = {
                     name: self.nameToAdd(),
-                    frequency: self.frequencyToAdd()
+                    frequency: frequency_int
                 };
                 
                 if (self.mode() === "add"){
@@ -131,7 +138,7 @@
                     })
                     .then(response => response.json())
                     .then(res => {
-                        console.log("サーバー応答:", res['status']);
+                        console.log("サーバー応答:");//, res['status']);
                         console.log(res['added_display']);
                         actions_data.push({
                             id:         res['added_action'].id,
@@ -167,7 +174,7 @@
                         self.frequencyToAdd(1);
                     })
                     .catch(error => {
-                        console.log("送信エラー:", error);
+                        console.log("送信エラー:");//, error);
                     });
                 }
                 else if (self.mode() === "edit"){
@@ -188,7 +195,7 @@
                         })
                         .then(response => response.json())
                         .then(res => {
-                            console.log("サーバー応答:", res['status']);
+                            console.log("サーバー応答:");//, res['status']);
                             let item_actions = actions_data().find(a => a.id == self.editingId());
                             if (item_actions) {
                                 item_actions.name(res['edited_action'].name);
@@ -241,7 +248,7 @@
                             self.created_at = ko.observable("今日");
                         })
                         .catch(error => {
-                            console.log("送信エラー:", error);
+                            console.log("送信エラー:");//, error);
                         });
                     }
                 }

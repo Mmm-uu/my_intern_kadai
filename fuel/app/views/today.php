@@ -129,11 +129,12 @@
             
             //チェックボタン変化したとき
             action.status.subscribe(function(newValue) {
-                console.log("送信データ", {
-                            action_id: action.action_id,
-                            action_name: action.name(),
-                            status: action.status()
-                });
+                console.log("送信データ" //, {
+                            //action_id: action.action_id,
+                            //action_name: action.name(),
+                            //status: action.status()
+                //}
+                );
 
                 fetch('/dashboard/completed', {
                     method: 'POST',
@@ -145,7 +146,7 @@
                 })
                 .then(response => response.json())
                 .then(res => {
-                    console.log('更新成功:', res['status']);
+                    console.log('更新成功:');//, res['status']);
                     
                     //display描画用 last_completed_atを書き換えてグラフに反映させる
                     let item = display_data().find(x => x.id === res['change_display'].id);
@@ -164,7 +165,7 @@
                     console.log(item.last_completed_at());
                     //display_data.valueHasMutated();
                     })
-                .catch(err => console.error('更新失敗:', err));
+                .catch(err => console.error('更新失敗:'));//, err));
             });
 
 

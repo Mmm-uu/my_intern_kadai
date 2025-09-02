@@ -133,10 +133,10 @@
             })
             .then(response => response.json())
             .then(res => {
-                    console.log("サーバー応答:", res['status']);
+                    console.log("サーバー応答:");//, res['status']);
             })
             .catch(error => {
-                    console.log("送信エラー:", error);
+                    console.log("送信エラー:");//, error);
             });
 
         }.bind(this);

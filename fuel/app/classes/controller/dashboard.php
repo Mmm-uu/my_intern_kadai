@@ -1,18 +1,32 @@
 <?php
 
-class Controller_Dashboard extends Controller
+class Controller_Dashboard extends Controller_Base
 {
-    // public function before(){
-        // return \View::forge('dashboard');
+    public function before()
+    {
+        parent::before();
+        if (!\Auth::check()){
+            \Response::redirect('login');
+        }
+    }
+
+    // public function action_first()
+    // {
+        // list(, $user_id) = \Auth::get_user_id();
+        // $username = \Auth::get_screen_name();
+        // return \View::forge('dashboard', ['username' => $username]);
     // }
 
     //モデルからデータとってきて、ビューのdashboard.phpに、データと部分ビューを渡す
     public function action_index()
     {
-        $actions = \Model_Actions::get_all_actions();
+        list(, $user_id) = \Auth::get_user_id();
+        $user_name = \Auth::get_screen_name();
+
+        $actions = \Model_Actions::get_all_actions($user_id);
         $actions_view = \View::forge('index');
 
-        $today_actions = \Model_Records::get_today_actions();
+        $today_actions = \Model_Records::get_today_actions($user_id);
         $today_view = \View::forge('today');
 
         $display = \Model_Display::get_continuous_display($today_actions);
@@ -21,6 +35,7 @@ class Controller_Dashboard extends Controller
         $setting_view = \View::forge('setting');
 
         $data = [
+            'user_name' => $user_name,
             'actions' => $actions,
             'today_actions' => $today_actions,
             'display' => $display,
@@ -83,6 +98,8 @@ class Controller_Dashboard extends Controller
         if (\Input::method() == 'POST' && $data) {
         
             //バリデーション書く?
+            list(, $user_id) = \Auth::get_user_id();
+            $data['user_id'] = $user_id;
 
             //入力を直接使ってるから危険?
             $added_action = \Model_Actions::create_new_action($data); 

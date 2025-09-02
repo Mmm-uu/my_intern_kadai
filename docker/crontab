@@ -1,0 +1,2 @@
+# 毎日午前0時に daily_update.php を実行
+18 17 * * * root /usr/local/bin/run_daily_update.sh >> /var/log/cron.log 2>&1

@@ -55,7 +55,19 @@ RUN mkdir /var/www/html/my_fuel_project && \
     cd /var/www/html/my_fuel_project && \
     curl https://get.fuelphp.com/oil | sh
 
+# crontab と script と supervisor 設定をコピー
+COPY ./docker/crontab /etc/cron.d/my-cron-job
+COPY ./docker/scripts/run_daily_update.sh /usr/local/bin/
+COPY ./docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+RUN chmod 0644 /etc/cron.d/my-cron-job && \
+    chmod +x /usr/local/bin/run_daily_update.sh
+
+RUN apt-get update && apt-get install -y supervisor
+
+COPY ./docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
 EXPOSE 80
 
 # Apacheとcronをフォアグラウンドで起動
-CMD ["apache2-foreground"]
+# CMD ["apache2-foreground"]
+CMD ["/usr/bin/supervisord", "-n"]

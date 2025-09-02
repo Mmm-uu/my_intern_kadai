@@ -3,11 +3,12 @@ class Model_Records extends \Model_Crud
 {
     protected static $_table_name = 'records';
 
-    public static function create_new_record($data)  //$dataはnameとfrequency
+    public static function create_new_record($data)  //$dataはnameとfrequencyとuser_id
     {
 
         $id = \DB::select('id')
                 ->from('actions')
+                ->where('user_id', '=', $data['user_id'])
                 ->order_by('id', 'DESC')  //追加した項目だから1番下に存在する
                 ->execute()
                 ->get('id');
@@ -36,13 +37,14 @@ class Model_Records extends \Model_Crud
         return $added_record;
     }
 
-    public static function get_today_actions()
+    public static function get_today_actions($user_id)
     {
         $today_actions =  \DB::select('actions.*', self::$_table_name . '.*')
                                 ->from('actions')
                                 ->join(self::$_table_name, 'LEFT')
                                 ->on('actions.id', '=', self::$_table_name . '.action_id')
-                                ->where('actions.deleted', '=', 0)
+                                ->where('actions.user_id', '=', $user_id)
+                                ->and_where('actions.deleted', '=', 0)
                                 ->where(\DB::expr('DATE(' . self::$_table_name . '.date)'), '=', \DB::expr('CURDATE()'))
                                 //->and_where_open()
                                 //    ->where(\DB::expr('DATE(self::$_table_name . '.next_at')'), '=', \DB::expr('CURDATE()'))
@@ -71,12 +73,13 @@ class Model_Records extends \Model_Crud
         return $today_actions;
     }
 
-    public static function get_tomorrow_actions()
+    public static function get_tomorrow_actions($user_id)
     {
         return \DB::select('actions.*', self::$_table_name . '.*')
                     ->from('actions')
                     ->join(self::$_table_name, 'LEFT')
                     ->on('actions.id', '=', self::$_table_name . '.action_id')
+                    ->where('actions.user_id', '=', $user_id)
                     ->where('actions.deleted', '=', 0)
                     ->where(\DB::expr('DATE(' . self::$_table_name . '.next_at)'), '=', \DB::expr('CURDATE()'))
                     //->and_where_open()

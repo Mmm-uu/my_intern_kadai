@@ -10,6 +10,10 @@
     <title>習慣トラッカー</title>
 </head>
 <body>
+    
+    <a class="greeting">こんにちは！<?php echo htmlspecialchars($user_name, ENT_QUOTES, 'UTF-8'); ?>さん</a>
+    <a class="greeting" href="<?php echo Uri::create('auth/logout'); ?>">ログアウト</a>
+
     <div class="container">
         <!-- 行動一覧 -->
         <section class="actions-section" id="actions-section">
@@ -34,6 +38,10 @@
     </div>
     
     <style>
+        .greeting {
+            display: inline-block;
+            padding: 20px 20px;
+        }
         .container {
             display: flex;
             padding: 10px 10px;
@@ -43,7 +51,7 @@
         .today-section,
         .records-section,
         .setting-section {
-            padding: 20px 40px;
+            padding: 10px 40px;
             min-width: 340px;
         }
 

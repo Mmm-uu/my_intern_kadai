@@ -10,6 +10,8 @@ services:
       - "80:80"
     volumes:
       - ../:/var/www/html/my_fuel_project
+      - ./docker/scripts:/usr/local/bin
+      - ./docker/crontab:/etc/cron.d/my-cron-job
     environment:
       TZ: Asia/Tokyo
     networks:

@@ -12,6 +12,11 @@ class Create_actions_table
                 'auto_increment' => true,
                 'unsigned' => true
             ),
+            'user_id' => array(
+                'type' => 'int',
+                'null' => false,
+                'unsigned' => true
+            ),
             'name' => array(
                 'constraint' => 10,
                 'type' => 'varchar',

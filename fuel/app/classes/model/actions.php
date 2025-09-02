@@ -3,11 +3,12 @@ class Model_Actions extends \Model_Crud
 {
     protected static $_table_name = 'actions';
 
-    public static function get_all_actions()
+    public static function get_all_actions($user_id)
     {
         $result = \DB::select('*')
                         ->from(self::$_table_name)
-                        ->where('deleted', '=', 0)
+                        ->where('user_id', '=', $user_id)
+                        ->and_where('deleted', '=', 0)
                         ->order_by('id', 'ASC')
                         ->execute()
                         ->as_array();
@@ -31,6 +32,7 @@ class Model_Actions extends \Model_Crud
         $color = $colorList[array_rand($colorList)];
 
         list($insert_id, $rows) = \DB::insert(self::$_table_name)->set([
+                                        'user_id'   => $data['user_id'],
                                         'name'      => $data['name'],
                                         'frequency' => $data['frequency'],
                                         'color'     => $color,
