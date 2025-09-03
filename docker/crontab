@@ -1,3 +1,6 @@
 # 毎日午前0時に daily_update.php を実行
-30 10 * * * root php /var/www/html/my_fuel_project/oil refine daily_update >> /var/log/cron.log 2>&1
+#52 13 * * * root /usr/local/bin/php /var/www/html/my_fuel_project/oil refine daily_update >> /var/log/cron.log 2>&1
+0 14 * * * root cd /var/www/html/my_fuel_project && /usr/local/bin/php oil refine daily_update >> /var/log/cron.log 2>&1
+
+
 
