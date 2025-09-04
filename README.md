@@ -66,7 +66,9 @@ Dockerの基本的な概念については、以下のリンクを参考にし�
 
 
 
-- **actionsテーブル**
+## データベース作成SQL
+
+- **actionsテーブル**<br>
 CREATE TABLE `actions` (
    `id` INT NOT NULL AUTO_INCREMENT,
    `user_id` INT NOT NULL,
@@ -79,7 +81,7 @@ CREATE TABLE `actions` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
-- **recordsテーブル**
+- **recordsテーブル**<br>
 CREATE TABLE `records` (
    `id` INT NOT NULL AUTO_INCREMENT,
    `action_id` INT NOT NULL,
@@ -90,7 +92,7 @@ CREATE TABLE `records` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
-- **displayテーブル**
+- **displayテーブル**<br>
 CREATE TABLE `display` (
    `id` INT NOT NULL AUTO_INCREMENT,
    `action_id` INT NOT NULL,
@@ -102,7 +104,7 @@ CREATE TABLE `display` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
-- **usersテーブル**
+- **usersテーブル**<br>
 CREATE TABLE `users` (
     `id` INT(11) NOT NULL AUTO_INCREMENT,
     `username` VARCHAR(50) NOT NULL,
@@ -117,3 +119,7 @@ CREATE TABLE `users` (
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+
+## 1日に1回手動で以下を実行したいです
+- /intern_kadai/fuel/app/tasks/daily_update.php
+- php oil refine daily_update
