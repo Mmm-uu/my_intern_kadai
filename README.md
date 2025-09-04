@@ -63,3 +63,57 @@ Dockerの基本的な概念については、以下のリンクを参考にし�
 - **ユーザー名**: `root`
 - **パスワード**: `root`
 - **データベース名**: 各自設定した名前
+
+
+
+- **actionsテーブル**
+CREATE TABLE `actions` (
+   `id` INT NOT NULL AUTO_INCREMENT,
+   `user_id` INT NOT NULL,
+   `name` VARCHAR(10) NOT NULL,
+   `frequency` INT NOT NULL,
+   `color` CHAR(7) NOT NULL,
+   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+   `deleted` TINYINT(1) NOT NULL DEFAULT 0,
+   PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+- **recordsテーブル**
+CREATE TABLE `records` (
+   `id` INT NOT NULL AUTO_INCREMENT,
+   `action_id` INT NOT NULL,
+   `date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+   `status` TINYINT(1) NOT NULL DEFAULT 0,
+   `next_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+   PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+- **displayテーブル**
+CREATE TABLE `display` (
+   `id` INT NOT NULL AUTO_INCREMENT,
+   `action_id` INT NOT NULL,
+   `start_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+   `current_streak` INT UNSIGNED NOT NULL DEFAULT 0,
+   `last_completed_at` DATETIME DEFAULT NULL,
+   `next_target_at` DATETIME DEFAULT NULL,
+   PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+- **usersテーブル**
+CREATE TABLE `users` (
+    `id` INT(11) NOT NULL AUTO_INCREMENT,
+    `username` VARCHAR(50) NOT NULL,
+    `password` VARCHAR(255) NOT NULL,
+    `group` INT(11) NOT NULL DEFAULT 1,
+    `email` VARCHAR(255) NOT NULL,
+    `last_login` VARCHAR(25) DEFAULT NULL,
+    `login_hash` VARCHAR(255) DEFAULT NULL,
+    `profile_fields` TEXT,
+    `created_at` INT(11) NOT NULL DEFAULT 0,
+    `updated_at` INT(11) NOT NULL DEFAULT 0,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
