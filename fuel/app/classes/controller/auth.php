@@ -6,32 +6,45 @@ Class Controller_Auth extends Controller_Base
 	//ログイン
 	public function action_login()
 	{
+		$data = [];
+
 		if (\Input::method() === 'POST') {
 			if (!\Security::check_token()) {
-				throw new \HttpInvalidInputException('不正なリクエストです');
+					throw new \HttpInvalidInputException('不正なリクエストです');
 			}
 
-			$username = \Input::post('username');
-			$password = \Input::post('password');
+			$val = \Validation::forge();
+			$val->add_field('username', 'ユーザー名', 'required|min_length[1]|max_length[10]');
+			$val->add_field('password', 'パスワード', 'required|min_length[10]');
 
-			if (\Auth::login($username, $password)) {
-				$user_id = \Auth::get_user_id()[1];
-				\Cookie::set('user_id', $user_id, 60*60*24*365, '/', '', true, true);
-				\Response::redirect('dashboard');
+			if ($val->run()) {
+				$username = $val->validated('username');
+				$password = $val->validated('password');
+
+				if (\Auth::login($username, $password)) {
+					$user_id = \Auth::get_user_id()[1];
+					\Cookie::set('user_id', $user_id, 0, '/', '', true, true);
+					\Response::redirect('dashboard');
+				}
+				else {
+					$data['error'] = 'ユーザー名またはパスワードが違います';
+				}
 			}
 			else {
-				$data['error'] = 'ユーザー名またはパスワードが違います';
+				$data['error'] = 'バリデーションエラー';
 			}
 		}
+
 		return \View::forge('login', isset($data) ? $data : []);
 	}
+	
 
 
 	//ログアウト
 	public function action_logout()
 	{
 		\Auth::logout();
-		\Cookie::delete('user_id', '/');
+		\Cookie::delete('user_id', '/', '');
 		\Session::instance()->destroy();
 		\Response::redirect('login');
 	}
@@ -40,52 +53,51 @@ Class Controller_Auth extends Controller_Base
 	//新規登録 ユーザー名とパスワードで登録する
 	public function action_signup()
 	{
+		$data = [];
+
 		if (\Input::method() === 'POST') {
 			if (!\Security::check_token()) {
 				throw new \HttpInvalidInputException('不正なリクエストです');
 			}
 
-			$username = \Input::post('username');
-			$password = \Input::post('password');
+			$val = \Validation::forge();
+			$val->add_field('username', 'ユーザー名', 'required');
+			$val->add_field('password', 'パスワード', 'required|min_length[10]');
 
-			if (!$username || !$password) {
-				$data['error'] = 'ユーザー名とパスワードを入力してください';
-				return \View::forge('signup', $data);
+			if ($val->run()) {
+				$username = $val->validated('username');
+				$password = $val->validated('password');
+
+				$existing_user = \Model_Users::find_username($username);
+				if ($existing_user) {
+					$data['error'] = 'このユーザー名は既に使われています';
+				}
+				else {
+					//ユニークなメールアドレス用
+					$random = \Str::random('alnum', 8);
+
+					$user_id = \Auth::create_user(
+						$username,
+						$password,
+						$random . '@example.com',
+						1 
+					);
+
+					if ($user_id) {
+						// 登録成功 → 自動ログイン
+						\Auth::login($username, $password);
+						\Response::redirect('dashboard');
+					} else {
+						$data['error'] = '登録に失敗しました';
+					}
+				}
 			}
-
-			if (strlen($password) < 10) {
-				$data['error'] = 'パスワードを長くしてください';
-				return \View::forge('signup', $data);
-			}
-
-			$existing_user = \Model_Users::find_username($username);
-			if ($existing_user) {
-				$data['error'] = 'このユーザー名は既に使われています';
-				return \View::forge('signup', $data);
-			}
-
-			//ユニークなメールアドレス用
-			$random = \Str::random('alnum', 8);
-
-			$user_id = \Auth::create_user(
-				$username,
-				$password,
-				$random . '@example.com',
-				1 
-			);
-
-			if ($user_id) {
-				// 登録成功 → 自動ログイン
-				\Auth::login($username, $password);
-				\Response::redirect('dashboard');
-			} else {
-				$data['error'] = '登録に失敗しました';
-				return \View::forge('signup', $data);
+			else {
+				$data['error'] = 'バリデーションエラー';
 			}
 		}
 
-		// 初回表示
-		return \View::forge('signup');
+		return \View::forge('signup', $data);
 	}
 
 

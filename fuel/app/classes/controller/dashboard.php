@@ -50,11 +50,21 @@ class Controller_Dashboard extends Controller_Base
 	//チェックボックスの状態を受け取る
 	public function action_completed()
 	{
-		$raw = file_get_contents('php://input');
-		$data = json_decode($raw, true); 	//$dataは、action_idとstatus
+		$data = \Input::json();	//$dataは、action_idとstatus
 		
+		if (\Input::method() !== 'POST') {
+			return \Response::forge(
+			json_encode(['status' => 'error']), 
+			400, 
+			['Content-Type' => 'application/json']
+			);
+		}
 
-		if (\Input::method() == 'POST' && isset($data['action_id']) && isset($data['status'])) {
+		$val = \Validation::forge();
+    $val->add_field('action_id', 'Action ID', 'required|valid_string[numeric]');
+    $val->add_field('status', 'Status', 'required|match_pattern[/^[01]$/]');
+
+		if ($val->run($data)) {
 
 			\Model_Records::change_status_record($data);
 			$change_display = \Model_Display::change_display($data);
@@ -68,22 +78,35 @@ class Controller_Dashboard extends Controller_Base
 				['Content-Type' => 'application/json']
 			);
 		}
-		return \Response::forge(
-			json_encode(['status' => 'error']), 
-			400, 
-			['Content-Type' => 'application/json']
-		);
+		else {
+			return \Response::forge(
+				json_encode(['status' => 'error']), 
+				400, 
+				['Content-Type' => 'application/json']
+			);
+		}
 	}
 	
 
 	//行動を追加する
 	public function action_setting()
 	{
-		$raw = file_get_contents('php://input');
-		$data = json_decode($raw, true);           //$dataはnameとfrequencyと
+		$data = \Input::json();  //$dataはnameとfrequency
 
-		if (\Input::method() == 'POST' && $data) {
+		if (\Input::method() !== 'POST') {
+			return \Response::forge(
+				json_encode(['status' => 'error']), 
+				400, 
+				['Content-Type' => 'application/json']
+			);
+		}
+
+		$val = \Validation::forge();
+    $val->add_field('name', 'Name', 'required|max_length[10]');
+		$val->add_field('frequency', 'Frequency', 'required|valid_string[numeric]|min[1]');
 		
+		if ($val->run($data)) {
+
 			list(, $user_id) = \Auth::get_user_id();
 			$data['user_id'] = $user_id;
 
@@ -102,23 +125,36 @@ class Controller_Dashboard extends Controller_Base
 				['Content-Type' => 'application/json']
 			);
 		}
-
-		return \Response::forge(
-			json_encode(['status' => 'error']), 
-			400, 
-			['Content-Type' => 'application/json']
-		);
-			
+		else {
+			return \Response::forge(
+				json_encode(['status' => 'error', 'errors' => $val->error()]), 
+				400, 
+				['Content-Type' => 'application/json']
+			);
+		}
 	}
 
 
 	//行動の設定を編集する
 	public function action_edit() 
 	{
-		$raw = file_get_contents('php://input');
-		$data = json_decode($raw, true);
+		$data = \Input::json(); //$dataはname,frequency,id(action),before_frequency
 
-		if (\Input::method() == 'POST' && $data) {
+		if (\Input::method() !== 'POST') {
+			return \Response::forge(
+				json_encode(['status' => 'error']), 
+				400, 
+				['Content-Type' => 'application/json']
+			);
+		}
+
+		$val = \Validation::forge();
+    $val->add_field('name', 'Name', 'required|max_length[10]');
+		$val->add_field('frequency', 'Frequency', 'required|valid_string[numeric]|min[1]');
+		$val->add_field('id', 'Action ID', 'required|valid_string[numeric]');
+		$val->add_field('before_frequency', 'Before Frequency', 'required|valid_string[numeric]|min[1]');
+
+		if ($val->run($data)) {
 
 			$edited_action = \Model_Actions::edit_action($data); //$dataはname,frequency,id(action),before_frequency
 			$record_result = \Model_Records::edit_record($data); //$record_resultがnullなら今日の行動に変化はない
@@ -140,11 +176,13 @@ class Controller_Dashboard extends Controller_Base
 				['Content-Type' => 'application/json']
 			);
 		}
-		return \Response::forge(
-			json_encode(['status' => 'error']), 
-			400, 
-			['Content-Type' => 'application/json']
-		);
+		else {
+			return \Response::forge(
+				json_encode(['status' => 'error']), 
+				400, 
+				['Content-Type' => 'application/json']
+			);
+		}
 	}
 
 

@@ -158,7 +158,7 @@
 						self.frequencyToAdd(1);
 					})
 					.catch(error => {
-						console.log("送信エラー:");//, error);
+						console.log("送信エラー:", error);
 					});
 				}
 				else if (self.mode() === "edit"){
@@ -248,7 +248,7 @@
 		}
 			
 	}
-    
+
     
 </script>
 
