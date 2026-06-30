@@ -123,3 +123,7 @@ CREATE TABLE `users` (
 ## 1日に1回手動で以下を実行したいです
 - /intern_kadai/fuel/app/tasks/daily_update.php
 - php oil refine daily_update
+
+## 習慣トラッカーアプリ
+- 継続したい習慣・頻度を登録します
+- チェックすることで、継続が記録・表示されます
